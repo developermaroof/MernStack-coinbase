@@ -176,6 +176,25 @@ const authController = {
       .status(200)
       .json({ user: userDTO, auth: true, message: "Login successful" });
   },
+
+  async logout(req, res, next) {
+    const { refreshToken } = req.cookies;
+
+    try {
+      await RefreshToken.deleteOne({
+        token: refreshToken,
+      });
+    } catch (error) {
+      return next(error);
+    }
+
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+
+    res
+      .status(200)
+      .json({ user: null, auth: false, message: "Logout success" });
+  },
 };
 
 module.exports = authController;
