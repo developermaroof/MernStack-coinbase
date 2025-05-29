@@ -2,6 +2,8 @@ const Joi = require("joi");
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const UserDTO = require("../dto/user");
+const JWTService = require("../services/JWTService");
+const RefreshToken = require("../models/token");
 
 const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,25}$/;
 
@@ -47,9 +49,14 @@ const authController = {
       return next(error);
     }
 
-    try {
-      const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
+    let accessToken;
+    let refreshToken;
+
+    let user;
+
+    try {
       const userToRegister = new User({
         username,
         name,
@@ -57,17 +64,34 @@ const authController = {
         password: hashedPassword,
       });
 
-      const user = await userToRegister.save();
+      user = await userToRegister.save();
 
-      const userDTO = new UserDTO(user);
+      accessToken = JWTService.signAccessToken({ _id: user._id }, "30m");
 
-      return res.status(201).json({
-        user: userDTO,
-        message: "User registered successfully",
-      });
+      refreshToken = JWTService.signRefreshToken({ _id: user._id }, "60m");
     } catch (error) {
       return next(error);
     }
+
+    await JWTService.storeRefreshToken(refreshToken, user._id);
+
+    res.cookie("accessToken", accessToken, {
+      maxAge: 1000 * 60 * 60 * 24,
+      httpOnly: true,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      maxAge: 1000 * 60 * 60 * 24,
+      httpOnly: true,
+    });
+
+    const userDTO = new UserDTO(user);
+
+    return res.status(201).json({
+      user: userDTO,
+      message: "User registered successfully",
+      auth: true,
+    });
   },
 
   async login(req, res, next) {
@@ -110,9 +134,47 @@ const authController = {
       return next(error);
     }
 
+    const accessToken = JWTService.signAccessToken(
+      {
+        _id: user._id,
+      },
+      "30m"
+    );
+
+    const refreshToken = JWTService.signRefreshToken(
+      {
+        _id: user._id,
+      },
+      "60m"
+    );
+
+    try {
+      await RefreshToken.updateOne(
+        {
+          _id: user._id,
+        },
+        { token: refreshToken },
+        { upsert: true }
+      );
+    } catch (error) {
+      return next(error);
+    }
+
+    res.cookie("accessToken", accessToken, {
+      maxAge: 1000 * 60 * 60 * 24,
+      httpOnly: true,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      maxAge: 1000 * 60 * 60 * 24,
+      httpOnly: true,
+    });
+
     const userDTO = new UserDTO(user);
 
-    return res.status(200).json({ user: userDTO });
+    return res
+      .status(200)
+      .json({ user: userDTO, auth: true, message: "Login successful" });
   },
 };
 

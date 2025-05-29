@@ -48,4 +48,4 @@ class JWTService {
   }
 }
 
-module.exports = new JWTService();
+module.exports = JWTService;
