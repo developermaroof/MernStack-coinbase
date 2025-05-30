@@ -7,12 +7,10 @@ const blogSchema = new Schema(
     title: {
       type: String,
       required: true,
-      trim: true,
     },
     content: {
       type: String,
       required: true,
-      trim: true,
     },
     photoPath: {
       type: String,
@@ -21,7 +19,6 @@ const blogSchema = new Schema(
     author: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
   },
   { timestamps: true }

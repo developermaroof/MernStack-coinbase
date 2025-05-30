@@ -15,6 +15,8 @@ app.use(router);
 
 connectDB();
 
+app.use("/storage", express.static("storage"));
+
 app.use(errorHandler);
 
 app.listen(PORT, console.log(`Server is running on http://localhost:${PORT}`));
