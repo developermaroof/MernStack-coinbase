@@ -4,6 +4,7 @@ const Blog = require("../models/blog");
 const { BACKEND_SERVER_PATH } = require("../config/index");
 const BlogDTO = require("../dto/blog");
 const BlogDetailsDTO = require("../dto/blog-details");
+const Comment = require("../models/comment");
 
 const mongodbIdPattern = /^[0-9a-fA-F]{24}$/;
 
@@ -101,9 +102,103 @@ const blogController = {
     return res.status(200).json({ blog: blogDto });
   },
 
-  async update(req, res, next) {},
+  async update(req, res, next) {
+    const updateBlogSchema = Joi.object({
+      blogId: Joi.string().regex(mongodbIdPattern).required(),
+      author: Joi.string().regex(mongodbIdPattern).required(),
+      title: Joi.string(),
+      content: Joi.string(),
+      photo: Joi.string(),
+    });
 
-  async delete(req, res, next) {},
+    const { error } = updateBlogSchema.validate(req.body);
+
+    if (error) {
+      return next(error);
+    }
+
+    const { blogId, author, title, content, photo } = req.body;
+
+    let blog;
+
+    try {
+      blog = await Blog.findOne({ _id: blogId });
+    } catch (error) {
+      return next(error);
+    }
+
+    if (!blog) {
+      const error = {
+        status: 404,
+        message: "Blog not found",
+      };
+
+      return next(error);
+    }
+
+    if (photo) {
+      let previousPhoto = blog.photoPath;
+
+      previousPhoto = previousPhoto.split("/").at(-1);
+
+      fs.unlinkSync(`storage/${previousPhoto}`);
+
+      const buffer = Buffer.from(
+        photo.replace(/^data:image\/(png|jpg|jpeg);base64,/, ""),
+        "base64"
+      );
+
+      const imagePath = `${Date.now()}-${author}.png`;
+
+      try {
+        fs.writeFileSync(`storage/${imagePath}`, buffer);
+      } catch (error) {
+        return next(error);
+      }
+
+      await Blog.updateOne(
+        { _id: blogId },
+        {
+          title,
+          content,
+          photoPath: `${BACKEND_SERVER_PATH}/storage/${imagePath}`,
+        }
+      );
+    } else {
+      await Blog.updateOne(
+        { _id: blogId },
+        {
+          title,
+          content,
+        }
+      );
+    }
+
+    return res.status(200).json({ message: "Blog updated successfully" });
+  },
+
+  async delete(req, res, next) {
+    const deleteBlogSchema = Joi.object({
+      id: Joi.string().regex(mongodbIdPattern).required(),
+    });
+
+    const { error } = deleteBlogSchema.validate(req.params);
+
+    if (error) {
+      return next(error);
+    }
+
+    const { id } = req.params;
+
+    try {
+      await Blog.deleteOne({ _id: id });
+      await Comment.deleteMany({ blog: id });
+    } catch (error) {
+      return next(error);
+    }
+
+    return res.status(200).json({ message: "Blog deleted successfully" });
+  },
 };
 
 module.exports = blogController;
