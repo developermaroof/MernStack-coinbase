@@ -3,8 +3,17 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Footer from "./components/Footer/Footer";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./pages/Home/Home";
+import Crypto from "./pages/Crypto/Crypto";
+import Blogs from "./pages/Blogs/Blogs";
+import SubmitBlog from "./pages/SubmitBlog/SubmitBlog";
+import LogIn from "./pages/LogIn/LogIn";
+import SignUp from "./pages/SignUp/SignUp";
+import Protected from "./components/Protected/Protected";
+import Error from "./pages/Error/Error";
 
 function App() {
+  const isAuth = true;
+
   return (
     <div className={styles.container}>
       <BrowserRouter>
@@ -23,43 +32,57 @@ function App() {
               path="/crypto"
               element={
                 <div className={styles.main}>
-                  <h1>Crypto Currencies</h1>
+                  <Crypto />
                 </div>
               }
             />
             <Route
               path="/blogs"
               element={
-                <div className={styles.main}>
-                  <h1>Blogs</h1>
-                </div>
+                <Protected isAuth={isAuth}>
+                  <div className={styles.main}>
+                    <Blogs />
+                  </div>
+                </Protected>
               }
             />
             <Route
               path="/submit"
               element={
+                <Protected isAuth={isAuth}>
+                  <div className={styles.main}>
+                    <SubmitBlog />
+                  </div>
+                </Protected>
+              }
+            />
+            <Route
+              path="/login"
+              element={
                 <div className={styles.main}>
-                  <h1>Submit a blog</h1>
+                  <LogIn />
                 </div>
               }
             />
             <Route
-              path="/log-in"
+              path="/signup"
               element={
                 <div className={styles.main}>
-                  <h1>Log In</h1>
+                  <SignUp />
                 </div>
               }
             />
+
             <Route
-              path="/sign-up"
+              path="*"
               element={
                 <div className={styles.main}>
-                  <h1>Sign Up</h1>
+                  <Error />
                 </div>
               }
             />
           </Routes>
+
           <Footer />
         </div>
       </BrowserRouter>
