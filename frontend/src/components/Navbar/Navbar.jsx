@@ -1,8 +1,9 @@
 import { NavLink } from "react-router-dom";
 import styles from "./Navbar.module.css";
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
-  const isAuthenticated = false;
+  const isAuthenticated = useSelector((state) => state.user.auth);
 
   return (
     <>

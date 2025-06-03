@@ -11,11 +11,20 @@ const errorHandler = require("./middlewares/errorHandler");
 // Import cookie parser to handle cookies
 const cookieParser = require("cookie-parser");
 
+const cors = require("cors");
+
+const corsOptions = {
+  credentials: true,
+  origin: ["http://localhost:3000"],
+};
+
 // Create express application
 const app = express();
 
 // Middleware to parse cookies from requests
 app.use(cookieParser());
+
+app.use(cors(corsOptions));
 
 // Middleware to parse JSON data from request bodies
 app.use(express.json());

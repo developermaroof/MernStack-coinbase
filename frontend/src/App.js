@@ -10,9 +10,10 @@ import LogIn from "./pages/LogIn/LogIn";
 import SignUp from "./pages/SignUp/SignUp";
 import Protected from "./components/Protected/Protected";
 import Error from "./pages/Error/Error";
+import { useSelector } from "react-redux";
 
 function App() {
-  const isAuth = true;
+  const isAuth = useSelector((state) => state.user.auth);
 
   return (
     <div className={styles.container}>
