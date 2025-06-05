@@ -1,5 +1,5 @@
 import { useState } from "react";
-import styles from "./LogIn.module.css";
+import styles from "./Login.module.css";
 import TextInput from "../../components/TextInput/TextInput";
 import loginSchema from "../../schemas/loginSchema";
 import { useFormik } from "formik";

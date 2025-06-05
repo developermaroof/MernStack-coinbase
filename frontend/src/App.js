@@ -6,8 +6,8 @@ import Home from "./pages/Home/Home";
 import Crypto from "./pages/Crypto/Crypto";
 import Blogs from "./pages/Blogs/Blogs";
 import SubmitBlog from "./pages/SubmitBlog/SubmitBlog";
-import LogIn from "./pages/LogIn/LogIn";
-import SignUp from "./pages/SignUp/SignUp";
+import Login from "./pages/Login/Login";
+import Signup from "./pages/SignUp/SignUp";
 import Protected from "./components/Protected/Protected";
 import Error from "./pages/Error/Error";
 import { useSelector } from "react-redux";
@@ -61,7 +61,7 @@ function App() {
               path="/login"
               element={
                 <div className={styles.main}>
-                  <LogIn />
+                  <Login />
                 </div>
               }
             />
@@ -69,7 +69,7 @@ function App() {
               path="/signup"
               element={
                 <div className={styles.main}>
-                  <SignUp />
+                  <Signup />
                 </div>
               }
             />
