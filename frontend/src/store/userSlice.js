@@ -19,7 +19,7 @@ export const userSlice = createSlice({
       state.username = username;
       state.auth = auth;
     },
-    resetUser: (state, action) => {
+    resetUser: (state) => {
       state._id = "";
       state.email = "";
       state.username = "";

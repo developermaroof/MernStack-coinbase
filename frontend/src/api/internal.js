@@ -31,3 +31,15 @@ export const signup = async (data) => {
 
   return response;
 };
+
+export const signout = async () => {
+  let response;
+
+  try {
+    response = await api.post("/logout");
+  } catch (error) {
+    return error;
+  }
+
+  return response;
+};
